@@ -8,15 +8,94 @@ import Foundation
 //: The below example shows a protocol that requires conforming types have a particular property defined.
 
 
+// Getters = Read Access
+// Setters = Write Access
+protocol FullyNamed {
+    var fullName: String { get }
+}
+// Adoption = : and name of protocol
+// Conformance = is the code inside your protocol
+struct Person: FullyNamed {
+    var fullName: String
+}
+
+let rob = Person(fullName: "Robert Vance")
+let ben = Person(fullName: "Ben")
+
+print(rob.fullName)
+
+class StarShip: FullyNamed {
+    var prefix: String?
+    var name: String
+    // Computed Property (Calculated Property)
+    var fullName: String {
+        // Ternary operators
+        return (prefix != nil ? prefix! + " ": "") + self.name
+    }
+    
+    init(name: String, prefix: String? = nil) {
+        self.name = name
+        self.prefix = prefix
+    }
+    
+}
+
+var ncc1701 =  StarShip(name: "Enterprise", prefix: "USS")
+ncc1701.fullName
+var firefly = StarShip(name: "Serenity")
+firefly.fullName
+
+
 
 //: Protocols can also require that conforming types implement certain methods.
 
+protocol GeneratesRandomNumbers {
+    func random() -> Int
+}
+
+class OneThroughTen: GeneratesRandomNumbers {
+    func random() -> Int {
+        return Int.random(in: 1...10)
+    }
+}
+let rand = OneThroughTen()
+rand.random()
 
 
 //: Using built-in Protocols
+extension StarShip: Equatable {
+    static func == (lhs: StarShip, rhs: StarShip) -> Bool {
+        if lhs.fullName == rhs.fullName { return true }
+        else { return false }
+    }
+}
 
-
+if ncc1701 == firefly {
+    print("Same Starship")
+}
 
 //: ## Protocols as Types
+class Dice {
+    let sides: Int
+    let generator: GeneratesRandomNumbers
+    
+    init(sides: Int, generator: GeneratesRandomNumbers) {
+        self.sides = sides
+        self.generator = generator
+    }
+    func roll() -> Int {
+        return Int(generator.random() % sides) + 1
+        // Dice 6 sides
+        // 1 % 6 + 1 = 6
+        // 2 % 6 + 1 = 5
+        // 3 % 6 + 1 = 4
+        // 6 % 6 + 1 = 1
+        // 10 % 6 = 4 then + 1 = 5
+        
+    }
+}
 
-
+var d6 = Dice(sides: 6, generator: OneThroughTen())
+for _ in 1...5 {
+    print("Random dice roll is \(d6.roll())")
+}
